@@ -1,0 +1,27 @@
+{
+  "name": "lunch-bite",
+  "version": "0.1.0",
+  "description": "SlackBot backend for the lunch-bite integration.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "lunch-bite"
+  },
+  "keywords": [
+    "slack",
+    "bolt",
+    "mongodb",
+    "mongoose"
+  ],
+  "author": "5knnbdwm",
+  "license": "MIT",
+  "dependencies": {
+    "@slack/bolt": "^1.4.1",
+    "custom-env": "^1.0.2",
+    "mongoose": "^5.7.10",
+    "request": "^2.88.0"
+  }
+}
