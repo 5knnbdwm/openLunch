@@ -35,6 +35,7 @@ var usermodel = mongoose.model('user', UserSchema);
 var ActivitySchema = new mongoose.Schema({
   idUser: String,
   idChannel: String,
+  kind: Array,
   activity: Date
 });
 var activitymodel = mongoose.model('activity', ActivitySchema);
@@ -231,7 +232,6 @@ function filterDistrict(_city) {
       element = district[i].item
     }
   }
-  // element = district[0].item
   return element
 }
 
@@ -965,6 +965,108 @@ function filterPostCode(_district) {
   return element
 }
 
+function filterGeo(_postcode) {
+  const postcode = _postcode
+  const geo = [
+    ["10115", "52.532, 13.3922"],
+    ["10117", "52.5161, 13.3874"],
+    ["10119", "52.5285, 13.4109"],
+    ["10178", "52.5233, 13.4138"],
+    ["10179", "52.5136, 13.4232"],
+    ["10243", "52.5056, 13.4487"],
+    ["10245", "52.5167, 13.4"],
+    ["10247", "52.515, 13.4608"],
+    ["10249", "52.5167, 13.4"],
+    ["10318", "52.5167, 13.4"],
+    ["10319", "52.5167, 13.4"],
+    ["10405", "52.539, 13.424"],
+    ["10407", "52.5332, 13.4464"],
+    ["10409", "52.5167, 13.4"],
+    ["10435", "52.5167, 13.4"],
+    ["10437", "52.5466, 13.4146"],
+    ["10439", "52.553, 13.4142"],
+    ["10585", "52.5178, 13.301"],
+    ["10587", "52.5154, 13.3194"],
+    ["10589", "52.5167, 13.4"],
+    ["10623", "52.5076, 13.3274"],
+    ["10625", "52.5092, 13.3158"],
+    ["10627", "52.5086, 13.3033"],
+    ["10629", "52.5032, 13.3134"],
+    ["10823", "52.5167, 13.4"],
+    ["10825", "52.4889, 13.3438"],
+    ["10827", "52.4853, 13.355"],
+    ["10829", "52.4809, 13.3619"],
+    ["10961", "52.4924, 13.3908"],
+    ["10963", "52.4992, 13.3812"],
+    ["10965", "52.4887, 13.3781"],
+    ["10967", "52.4921, 13.4137"],
+    ["10969", "52.5038, 13.41"],
+    ["10997", "52.5002, 13.437"],
+    ["10999", "52.4992, 13.4307"],
+    ["12043", "52.4788, 13.4374"],
+    ["12045", "52.5167, 13.4"],
+    ["12047", "52.4873, 13.4269"],
+    ["12049", "52.4789, 13.4228"],
+    ["12051", "52.5167, 13.4"],
+    ["12053", "52.5167, 13.4"],
+    ["12055", "52.4693, 13.4417"],
+    ["12057", "52.4654, 13.4425"],
+    ["12059", "52.5167, 13.4"],
+    ["12203", "52.5167, 13.4"],
+    ["12205", "52.5167, 13.4"],
+    ["12207", "52.5167, 13.4"],
+    ["12209", "52.5167, 13.4"],
+    ["12247", "52.5167, 13.4"],
+    ["12249", "52.5167, 13.4"],
+    ["12277", "52.5167, 13.4"],
+    ["12279", "52.5167, 13.4"],
+    ["12305", "52.5167, 13.4"],
+    ["12307", "52.5167, 13.4"],
+    ["12309", "52.5167, 13.4"],
+    ["12487", "52.5167, 13.4"],
+    ["12489", "52.5167, 13.4"],
+    ["12555", "52.5167, 13.4"],
+    ["12557", "52.5167, 13.4"],
+    ["12559", "52.5167, 13.4"],
+    ["12679", "52.5167, 13.4"],
+    ["12681", "52.5167, 13.4"],
+    ["12683", "52.5167, 13.4"],
+    ["12685", "52.5167, 13.4"],
+    ["12687", "52.5167, 13.4"],
+    ["12689", "52.5167, 13.4"],
+    ["13086", "52.5167, 13.4"],
+    ["13088", "52.558, 13.4697"],
+    ["13089", "52.5714, 13.4308"],
+    ["13187", "52.5731, 13.4171"],
+    ["13189", "52.5677, 13.423"],
+    ["13347", "52.5449, 13.3623"],
+    ["13349", "52.5544, 13.3447"],
+    ["13351", "52.5167, 13.4"],
+    ["13353", "52.5427, 13.3557"],
+    ["13355", "52.5167, 13.4"],
+    ["13357", "52.5517, 13.3843"],
+    ["13359", "52.5565, 13.3911"],
+    ["13403", "52.5723, 13.324"],
+    ["13405", "52.567, 13.313"],
+    ["13407", "52.5698, 13.3416"],
+    ["13409", "52.5586, 13.3668"],
+    ["13435", "52.5993, 13.3537"],
+    ["13437", "52.5922, 13.3312"],
+    ["13439", "52.598, 13.358"],
+    ["14109", "52.5167, 13.4"],
+    ["14163", "52.5167, 13.4"],
+    ["14165", "52.5167, 13.4"],
+    ["14167", "52.5167, 13.4"],
+    ["14169", "52.5167, 13.4"]
+  ]
+  var element
+  for (var i = 0; i < geo.length; i++) {
+    if (geo[i][0] === postcode) {
+      element = geo[i][1]
+    }
+  }
+  return element
+}
 // Slack events
 
 app.event('app_home_opened', async ({
@@ -982,9 +1084,26 @@ app.event('app_home_opened', async ({
       say({
         "blocks": messageStore.missing.blocks
       })
+
+      var activityUpdate = new activitymodel({
+        idUser: event.user,
+        idChannel: event.channel,
+        kind: ["app_home_opened", "after_6_hours"],
+        activity: new Date()
+      });
+      await activityUpdate.save();
+      console.log("activityUpdate: " + activityUpdate.kind)
+
       // second option, if last userActivity + 6 hours is smaller than the current time  
     } else {
-      console.log('user in db')
+      var activityUpdate = new activitymodel({
+        idUser: event.user,
+        idChannel: event.channel,
+        kind: ["app_home_opened", "within_6_hours"],
+        activity: new Date()
+      });
+      await activityUpdate.save();
+      console.log("activityUpdate: " + activityUpdate.kind)
     }
   } else {
     // there is no user with the channel and the user ID. User has to accept the privacy policy first and set up the account
@@ -1482,24 +1601,53 @@ app.action('account_setup_postcode', async ({
 app.action('account_setup_confirm', async ({
   ack,
   body,
-  action,
   respond,
   say
 }) => {
   ack()
+  const user = await usermodel.findOne({
+    idUser: body.user.id,
+    idChannel: body.channel.id
+  })
+
+  const geoValue = filterGeo(user.location.postCode)
 
   await usermodel.findOneAndUpdate({
     idUser: body.user.id,
     idChannel: body.channel.id
   }, {
     lastActivity: new Date(),
+    location: {
+      "geo": geoValue,
+      "city": user.location.city,
+      "district": user.location.district,
+      "postCode": user.location.postCode
+    },
     status: 0
   })
 
   respond({
     "text": ">:gear: Your Profile has been updated."
   })
-  say('_! status message !_')
+  say({
+    "blocks": messageStore.missing.blocks
+  })
+
+  var activityUpdate = new activitymodel({
+    idUser: body.user.id,
+    idChannel: body.channel.id,
+    kind: ["app_home_opened", "signup_complete"],
+    activity: new Date()
+  });
+  await activityUpdate.save();
+  console.log("activityUpdate: " + activityUpdate.kind)
+})
+
+app.message('hello', ({
+  say,
+  message
+}) => {
+  say(`Hello <@${message.user}>`)
 })
 
 app.action('', async ({
