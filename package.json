@@ -21,6 +21,7 @@
   "dependencies": {
     "@slack/bolt": "^1.4.1",
     "custom-env": "^1.0.2",
+    "eslint": "^6.6.0",
     "mongoose": "^5.7.10",
     "request": "^2.88.0"
   }
