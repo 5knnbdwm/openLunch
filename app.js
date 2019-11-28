@@ -2450,7 +2450,7 @@ app.message('delete all', async ({
   for (var i = 0; i <= history.messages.length; i++) {
     await app.client.chat.delete({
       // fill here the `OAuth Access Token` that you in your slack app `OAuth & Permissions` section
-      token: "xoxp-786262460966-785911256039-854496118135-730c003ed25cbdd301211e3f62d269a7",
+      token: process.env.SLACK_OAUTH_ACCESS_TOKEN,
       channel: message.channel,
       ts: history.messages[i].ts,
       as_user: true
