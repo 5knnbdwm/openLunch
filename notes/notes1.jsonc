@@ -1,0 +1,150 @@
+[
+  // message
+  {
+    "client_msg_id": "d6bd7d4f-a13e-4af1-a594-d59cae9211a4",
+    "type": "message",
+    "text": "asdasd”}{”",
+    "user": "UP3ST7J15",
+    "ts": "1573728371.001500",
+    "team": "TP47QDJUE",
+    "channel": "DNT0EMHK5",
+    "event_ts": "1573728371.001500",
+    "channel_type": "im"
+  },
+
+  // context
+  {
+    "botToken": "xoxb-7862966-8349599-lrSeiaZP4BWWccPS",
+    "botId": "BQH2BCACD",
+    "botUserId": "UQJT91EHM"
+  },
+
+  // event
+  {
+    "type": "app_home_opened",
+    "user": "UP3ST7J15",
+    "channel": "DQK89M9GE",
+    "tab": "messages"
+  },
+
+  // action from button click
+  {
+    "action_id": "account_setup_review",
+    "block_id": "3X+ii",
+    "text": {
+      "type": "plain_text",
+      "text": "Approve",
+      "emoji": true
+    },
+    "value": "click_me_123",
+    "type": "button",
+    "action_ts": "1573746415.258351"
+  },
+
+  // action of select
+  {
+    "type": "static_select",
+    "action_id": "testingstuff",
+    "block_id": "nPy4i",
+    "selected_option": {
+      "text": {
+        "type": "plain_text",
+        "text": "Choice 2",
+        "emoji": true
+      },
+      "value": "value-1"
+    },
+    "placeholder": {
+      "type": "plain_text",
+      "text": "Select an item",
+      "emoji": true
+    },
+    "action_ts": "1574774547.190373"
+  },
+
+  // body
+  {
+    "type": "block_actions",
+    "team": {
+      "id": "TP47QDJUE",
+      "domain": "testingoutslackbots"
+    },
+    "user": {
+      "id": "UP3ST7J15",
+      "username": "samuel.soeller",
+      "name": "samuel.soeller",
+      "team_id": "TP47QDJUE"
+    },
+    "api_app_id": "AQJT3PURM",
+    "token": "GOe15ROJLAnYrDxr3j4Rk5kX",
+    "container": {
+      "type": "message",
+      "message_ts": "1573747723.010400",
+      "channel_id": "DQK89M9GE",
+      "is_ephemeral": false
+    },
+    "trigger_id": "823321073187.786262460966.1e0dcadf29cd82f2871ef05ac53b6292",
+    "channel": {
+      "id": "DQK89M9GE",
+      "name": "directmessage"
+    },
+    "message": {
+      "type": "message",
+      "subtype": "bot_message",
+      "text": "This content can't be displayed.",
+      "ts": "1573747723.010400",
+      "username": "lunch-bite",
+      "bot_id": "BQH2BCACD",
+      "blocks": [{
+        "type": "section",
+        "block_id": "blne",
+        "text": {
+          "type": "mrkdwn",
+          "text": "Hello and Welcome to *Lunch-Bite*.\nIn order for you to use the service you jave to accept the privacy policy.",
+          "verbatim": false
+        }
+      }, {
+        "type": "divider",
+        "block_id": "KUG"
+      }, {
+        "type": "actions",
+        "block_id": "TycX",
+        "elements": [{
+          "type": "button",
+          "action_id": "account_setup_approve",
+          "text": {
+            "type": "plain_text",
+            "text": "Approve",
+            "emoji": true
+          },
+          "style": "primary",
+          "value": "click_me_123"
+        }, {
+          "type": "button",
+          "action_id": "account_setup_deny",
+          "text": {
+            "type": "plain_text",
+            "text": "Deny",
+            "emoji": true
+          },
+          "style": "danger",
+          "value": "click_me_123"
+        }]
+      }]
+    },
+    "response_url": "https://hooks.slack.com/actions/TP47QDJUE/834799631269/GxM6JNMOzPd1TLDuy7VjTsTv",
+    "actions": [{
+      "action_id": "account_setup_approve",
+      "block_id": "TycX",
+      "text": {
+        "type": "plain_text",
+        "text": "Approve",
+        "emoji": true
+      },
+      "value": "click_me_123",
+      "style": "primary",
+      "type": "button",
+      "action_ts": "1573747883.791715"
+    }]
+  }
+]

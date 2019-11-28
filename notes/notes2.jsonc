@@ -1,0 +1,251 @@
+{
+  "items": [{
+    "position": [52.52463, 13.39494],
+    "distance": 851,
+    "title": "Que Pasa",
+    "averageRating": 0,
+    "category": {
+      "id": "restaurant",
+      "title": "Restaurant",
+      "href": "https://places.cit.api.here.com/places/v1/categories/places/restaurant?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+      "type": "urn:nlp-types:category",
+      "system": "places"
+    },
+    "icon": "https://download.vcdn.cit.data.here.com/p/d/places2_stg/icons/categories/03.icon",
+    "vicinity": "Oranienburger Straße 27\nMitte, 10117 Berlin",
+    "having": [],
+    "type": "urn:nlp-types:place",
+    "href": "https://places.cit.api.here.com/places/v1/places/276u33db-1d5cd7c1e13f46978ef3a061fd654fb0;context=Zmxvdy1pZD03YjEwMjZjMi05NWY5LTUyMWQtOGI5OC1jNjA1MWZhZTdjYjhfMTU3MzAzNzM3MTg5NV80MTE4Xzg4MTQmcmFuaz0w?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+    "tags": [{
+      "id": "mexican",
+      "title": "Mexican",
+      "group": "cuisine"
+    }, {
+      "id": "soup",
+      "title": "Soup",
+      "group": "cuisine"
+    }, {
+      "id": "tapas",
+      "title": "Tapas",
+      "group": "cuisine"
+    }],
+    "id": "276u33db-1d5cd7c1e13f46978ef3a061fd654fb0",
+    "authoritative": true,
+    "openingHours": {
+      "text": "Mon-Sun: 11:30 - 23:55",
+      "label": "Opening hours",
+      "isOpen": true,
+      "structured": [{
+        "start": "T113000",
+        "duration": "PT12H25M",
+        "recurrence": "FREQ:DAILY;BYDAY:MO,TU,WE,TH,FR,SA,SU"
+      }]
+    },
+    "alternativeNames": [{
+      "name": "Que Pasa I Oranienburger Strasse",
+      "language": "en"
+    }]
+  }, {
+    "position": [52.50859, 13.37376],
+    "distance": 2463,
+    "title": "Que Pasa",
+    "averageRating": 0,
+    "category": {
+      "id": "restaurant",
+      "title": "Restaurant",
+      "href": "https://places.cit.api.here.com/places/v1/categories/places/restaurant?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+      "type": "urn:nlp-types:category",
+      "system": "places"
+    },
+    "icon": "https://download.vcdn.cit.data.here.com/p/d/places2_stg/icons/categories/03.icon",
+    "vicinity": "Voxstraße 2\nTiergarten, 10785 Berlin",
+    "having": [],
+    "type": "urn:nlp-types:place",
+    "href": "https://places.cit.api.here.com/places/v1/places/276aabd1-b9f43cd497f60120eb7166b782d6d8e8;context=Zmxvdy1pZD03YjEwMjZjMi05NWY5LTUyMWQtOGI5OC1jNjA1MWZhZTdjYjhfMTU3MzAzNzM3MTg5NV80MTE4Xzg4MTQmcmFuaz0x?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+    "tags": [{
+      "id": "mexican",
+      "title": "Mexican",
+      "group": "cuisine"
+    }],
+    "id": "276aabd1-b9f43cd497f60120eb7166b782d6d8e8",
+    "openingHours": {
+      "text": "Mon-Fri: 11:30 - 01:00\nSat: 12:00 - 02:00\nSun: 10:00 - 01:00",
+      "label": "Opening hours",
+      "isOpen": true,
+      "structured": [{
+        "start": "T113000",
+        "duration": "PT13H30M",
+        "recurrence": "FREQ:DAILY;BYDAY:MO,TU,WE,TH,FR"
+      }, {
+        "start": "T120000",
+        "duration": "PT14H00M",
+        "recurrence": "FREQ:DAILY;BYDAY:SA"
+      }, {
+        "start": "T100000",
+        "duration": "PT15H00M",
+        "recurrence": "FREQ:DAILY;BYDAY:SU"
+      }]
+    }
+  }, {
+    "position": [52.49941, 13.42686],
+    "distance": 2728,
+    "title": "Que Pasa",
+    "averageRating": 0,
+    "category": {
+      "id": "restaurant",
+      "title": "Restaurant",
+      "href": "https://places.cit.api.here.com/places/v1/categories/places/restaurant?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+      "type": "urn:nlp-types:category",
+      "system": "places"
+    },
+    "icon": "https://download.vcdn.cit.data.here.com/p/d/places2_stg/icons/categories/03.icon",
+    "vicinity": "Skalitzer Straße 107\nKreuzberg, 10997 Berlin",
+    "having": [],
+    "type": "urn:nlp-types:place",
+    "href": "https://places.cit.api.here.com/places/v1/places/276u33d9-5ad13e2be8ad4bf1bdb58f67cc6ff09c;context=Zmxvdy1pZD03YjEwMjZjMi05NWY5LTUyMWQtOGI5OC1jNjA1MWZhZTdjYjhfMTU3MzAzNzM3MTg5NV80MTE4Xzg4MTQmcmFuaz0y?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+    "tags": [{
+      "id": "mexican",
+      "title": "Mexican",
+      "group": "cuisine"
+    }],
+    "id": "276u33d9-5ad13e2be8ad4bf1bdb58f67cc6ff09c",
+    "openingHours": {
+      "text": "Mon-Thu: 15:00 - 03:00\nFri, Sat: 12:00 - 03:00\nSun: 10:00 - 03:00",
+      "label": "Opening hours",
+      "isOpen": false,
+      "structured": [{
+        "start": "T150000",
+        "duration": "PT12H00M",
+        "recurrence": "FREQ:DAILY;BYDAY:MO,TU,WE,TH"
+      }, {
+        "start": "T120000",
+        "duration": "PT15H00M",
+        "recurrence": "FREQ:DAILY;BYDAY:FR,SA"
+      }, {
+        "start": "T100000",
+        "duration": "PT17H00M",
+        "recurrence": "FREQ:DAILY;BYDAY:SU"
+      }]
+    },
+    "alternativeNames": [{
+      "name": "Quepasa Mexicana",
+      "language": "en"
+    }]
+  }, {
+    "position": [52.49985, 13.44346],
+    "distance": 3437,
+    "title": "Que Pasa",
+    "averageRating": 0,
+    "category": {
+      "id": "restaurant",
+      "title": "Restaurant",
+      "href": "https://places.cit.api.here.com/places/v1/categories/places/restaurant?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+      "type": "urn:nlp-types:category",
+      "system": "places"
+    },
+    "icon": "https://download.vcdn.cit.data.here.com/p/d/places2_stg/icons/categories/03.icon",
+    "vicinity": "Falckensteinstraße\nKreuzberg, 10997 Berlin",
+    "having": [],
+    "type": "urn:nlp-types:place",
+    "href": "https://places.cit.api.here.com/places/v1/places/276aabd1-859ef2b261d80f7991196ce8025b4b71;context=Zmxvdy1pZD03YjEwMjZjMi05NWY5LTUyMWQtOGI5OC1jNjA1MWZhZTdjYjhfMTU3MzAzNzM3MTg5NV80MTE4Xzg4MTQmcmFuaz0z?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+    "tags": [{
+      "id": "mexican",
+      "title": "Mexican",
+      "group": "cuisine"
+    }],
+    "id": "276aabd1-859ef2b261d80f7991196ce8025b4b71",
+    "openingHours": {
+      "text": "Mon-Fri: 11:30 - 00:00\nSat, Sun: 12:00 - 01:00",
+      "label": "Opening hours",
+      "isOpen": true,
+      "structured": [{
+        "start": "T113000",
+        "duration": "PT12H30M",
+        "recurrence": "FREQ:DAILY;BYDAY:MO,TU,WE,TH,FR"
+      }, {
+        "start": "T120000",
+        "duration": "PT13H00M",
+        "recurrence": "FREQ:DAILY;BYDAY:SA,SU"
+      }]
+    }
+  }, {
+    "position": [52.48935, 13.39362],
+    "distance": 3493,
+    "title": "Que Pasa",
+    "averageRating": 0,
+    "category": {
+      "id": "restaurant",
+      "title": "Restaurant",
+      "href": "https://places.cit.api.here.com/places/v1/categories/places/restaurant?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+      "type": "urn:nlp-types:category",
+      "system": "places"
+    },
+    "icon": "https://download.vcdn.cit.data.here.com/p/d/places2_stg/icons/categories/03.icon",
+    "vicinity": "Zossener Straße 27\nKreuzberg, 10961 Berlin",
+    "having": [],
+    "type": "urn:nlp-types:place",
+    "href": "https://places.cit.api.here.com/places/v1/places/276aabd1-9fd829e3684d05b86f7ddb1f3f83924c;context=Zmxvdy1pZD03YjEwMjZjMi05NWY5LTUyMWQtOGI5OC1jNjA1MWZhZTdjYjhfMTU3MzAzNzM3MTg5NV80MTE4Xzg4MTQmcmFuaz00?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+    "tags": [{
+      "id": "mexican",
+      "title": "Mexican",
+      "group": "cuisine"
+    }],
+    "id": "276aabd1-9fd829e3684d05b86f7ddb1f3f83924c"
+  }, {
+    "position": [52.48762, 13.35434],
+    "distance": 4970,
+    "title": "Que Pasa",
+    "averageRating": 0,
+    "category": {
+      "id": "restaurant",
+      "title": "Restaurant",
+      "href": "https://places.cit.api.here.com/places/v1/categories/places/restaurant?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+      "type": "urn:nlp-types:category",
+      "system": "places"
+    },
+    "icon": "https://download.vcdn.cit.data.here.com/p/d/places2_stg/icons/categories/03.icon",
+    "vicinity": "Akazienstraße 24\nSchöneberg, 10823 Berlin",
+    "having": [],
+    "type": "urn:nlp-types:place",
+    "href": "https://places.cit.api.here.com/places/v1/places/276u336x-1ffaef5bbe2a4f3cb4668ff9412fb3a6;context=Zmxvdy1pZD03YjEwMjZjMi05NWY5LTUyMWQtOGI5OC1jNjA1MWZhZTdjYjhfMTU3MzAzNzM3MTg5NV80MTE4Xzg4MTQmcmFuaz01?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+    "tags": [{
+      "id": "mexican",
+      "title": "Mexican",
+      "group": "cuisine"
+    }],
+    "id": "276u336x-1ffaef5bbe2a4f3cb4668ff9412fb3a6",
+    "openingHours": {
+      "text": "Mon-Sun: 11:30 - 01:00",
+      "label": "Opening hours",
+      "isOpen": true,
+      "structured": [{
+        "start": "T113000",
+        "duration": "PT13H30M",
+        "recurrence": "FREQ:DAILY;BYDAY:MO,TU,WE,TH,FR,SA,SU"
+      }]
+    }
+  }, {
+    "position": [52.48762, 13.35434],
+    "distance": 4970,
+    "title": "Que Pasa I Berlin I Schöneberg",
+    "averageRating": 0,
+    "category": {
+      "id": "restaurant",
+      "title": "Restaurant",
+      "href": "https://places.cit.api.here.com/places/v1/categories/places/restaurant?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+      "type": "urn:nlp-types:category",
+      "system": "places"
+    },
+    "icon": "https://download.vcdn.cit.data.here.com/p/d/places2_stg/icons/categories/03.icon",
+    "vicinity": "Akazienstraße 24\nSchöneberg, 10823 Berlin",
+    "having": [],
+    "type": "urn:nlp-types:place",
+    "href": "https://places.cit.api.here.com/places/v1/places/276u336x-1407677cf7264e63b04dff1b85edce82;context=Zmxvdy1pZD03YjEwMjZjMi05NWY5LTUyMWQtOGI5OC1jNjA1MWZhZTdjYjhfMTU3MzAzNzM3MTg5NV80MTE4Xzg4MTQmcmFuaz02?app_id=iuTj8khfJmRkHNcg4uu1&app_code=51SybSOK2QF3-syJ9dcdUg",
+    "tags": [{
+      "id": "mexican",
+      "title": "Mexican",
+      "group": "cuisine"
+    }],
+    "id": "276u336x-1407677cf7264e63b04dff1b85edce82"
+  }]
+}
