@@ -1136,7 +1136,7 @@ app.event('app_home_opened', async ({
     }
   } else {
     // there is no user with the channel and the user ID. User has to accept the privacy policy first and set up the account
-    let history = await app.client.im.history({
+    var history = await app.client.im.history({
       token: context.botToken,
       channel: event.channel,
       count: 1 // we only need to check if >=1 messages exist
@@ -1642,15 +1642,13 @@ app.action('account_setup_confirm', async ({
     idChannel: body.channel.id
   })
 
-  const geoValue = filterGeo(user.location.postCode)
-
   await usermodel.findOneAndUpdate({
     idUser: body.user.id,
     idChannel: body.channel.id
   }, {
     lastActivity: new Date(),
     location: {
-      "geo": geoValue,
+      "geo": filterGeo(user.location.postCode),
       "city": user.location.city,
       "district": user.location.district,
       "postCode": user.location.postCode
@@ -1817,6 +1815,55 @@ app.message('', async ({
       })
     }
     if (results.length === 1) {
+      var content = await app.client.users.info({
+        token: context.botToken,
+        user: message.user,
+        include_locale: true
+      })
+
+      var timeSlot = [
+        ["12", "00"],
+        ["12", "30"],
+        ["13", "00"],
+        ["13", "30"],
+        ["14", "00"],
+        ["14", "30"],
+        ["15", "00"],
+        ["15", "30"],
+        ["16", "00"],
+        ["16", "30"],
+        ["17", "00"],
+        ["17", "30"],
+        ["18", "00"],
+        ["18", "30"],
+        ["19", "00"],
+        ["19", "30"],
+        ["20", "00"],
+        ["20", "30"],
+        ["21", "00"],
+        ["21", "30"]
+      ]
+      var options = []
+
+      for (var i = 0; i < timeSlot.length; i++) {
+
+        const time1 = new Date().getTime() + content.user.tz_offset * 1000 + 2700000
+        const time2 = new Date().setHours(Number(timeSlot[i][0]), Number(timeSlot[i][1]), 0) + content.user.tz_offset * 1000
+
+        if (time1 < time2) {
+          const option = {
+            "text": {
+              "type": "plain_text",
+              "text": timeSlot[i][0] + ":" + timeSlot[i][1] + "pm",
+              "emoji": true
+            },
+            "value": timeSlot[i][0] + ":" + timeSlot[i][1]
+          }
+
+          options.push(option)
+        }
+      }
+
       say({
         "blocks": [{
             "type": "section",
@@ -1833,8 +1880,8 @@ app.message('', async ({
             "fields": [{
                 "type": "mrkdwn",
                 "text": `*Name:*\n${results[0].title}`
-              },
-              {
+                },
+                {
                 "type": "mrkdwn",
                 "text": `*Location:*\n${results[0].vicinity}`
               }
@@ -1850,167 +1897,7 @@ app.message('', async ({
                 "text": "Select a Time",
                 "emoji": true
               },
-              "options": [{
-                  "text": {
-                    "type": "plain_text",
-                    "text": "12:00 pm",
-                    "emoji": true
-                  },
-                  "value": "12:00"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "12:30 pm",
-                    "emoji": true
-                  },
-                  "value": "12:30"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "13:00 pm",
-                    "emoji": true
-                  },
-                  "value": "13:00"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "13:30 pm",
-                    "emoji": true
-                  },
-                  "value": "13:30"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "14:00 pm",
-                    "emoji": true
-                  },
-                  "value": "14:00"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "14:30 pm",
-                    "emoji": true
-                  },
-                  "value": "14:30"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "15:00 pm",
-                    "emoji": true
-                  },
-                  "value": "15:00"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "15:30 pm",
-                    "emoji": true
-                  },
-                  "value": "15:30"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "16:00 pm",
-                    "emoji": true
-                  },
-                  "value": "16:00"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "16:30 pm",
-                    "emoji": true
-                  },
-                  "value": "16:30"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "17:00 pm",
-                    "emoji": true
-                  },
-                  "value": "17:00"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "17:30 pm",
-                    "emoji": true
-                  },
-                  "value": "17:30"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "18:00 pm",
-                    "emoji": true
-                  },
-                  "value": "18:00"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "18:30 pm",
-                    "emoji": true
-                  },
-                  "value": "18:30"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "19:00 pm",
-                    "emoji": true
-                  },
-                  "value": "19:00"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "19:30 pm",
-                    "emoji": true
-                  },
-                  "value": "19:30"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "20:00 pm",
-                    "emoji": true
-                  },
-                  "value": "20:00"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "20:30 pm",
-                    "emoji": true
-                  },
-                  "value": "20:30"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "21:00 pm",
-                    "emoji": true
-                  },
-                  "value": "21:00"
-                },
-                {
-                  "text": {
-                    "type": "plain_text",
-                    "text": "21:30 pm",
-                    "emoji": true
-                  },
-                  "value": "21:30"
-                }
-              ]
+              "options": options
             }]
           }
         ]
@@ -2051,7 +1938,8 @@ app.message('', async ({
         var color = "#03BA0F"
         if (results[i].distance > 1300) {
           color = "#EA9F1E"
-        } if (results[i].distance > 2500) {
+        }
+        if (results[i].distance > 2500) {
           color = "#DD0003"
         }
         const element = {
@@ -2098,7 +1986,7 @@ app.message('', async ({
       })
     }
 
-    let history = await app.client.im.history({
+    var history = await app.client.im.history({
       token: context.botToken,
       channel: message.channel,
       count: 5
@@ -2123,10 +2011,60 @@ app.action("event_create_place_decision", async ({
   action,
   body,
   respond,
+  context,
   say
 }) => {
   ack()
   var result = JSON.parse(action.value)
+
+  var content = await app.client.users.info({
+    token: context.botToken,
+    user: body.user.id,
+    include_locale: true
+  })
+
+  var timeSlot = [
+    ["12", "00"],
+    ["12", "30"],
+    ["13", "00"],
+    ["13", "30"],
+    ["14", "00"],
+    ["14", "30"],
+    ["15", "00"],
+    ["15", "30"],
+    ["16", "00"],
+    ["16", "30"],
+    ["17", "00"],
+    ["17", "30"],
+    ["18", "00"],
+    ["18", "30"],
+    ["19", "00"],
+    ["19", "30"],
+    ["20", "00"],
+    ["20", "30"],
+    ["21", "00"],
+    ["21", "30"]
+  ]
+  var options = []
+
+  for (var i = 0; i < timeSlot.length; i++) {
+
+    const time1 = new Date().getTime() + content.user.tz_offset * 1000 + 2700000
+    const time2 = new Date().setHours(Number(timeSlot[i][0]), Number(timeSlot[i][1]), 0) + content.user.tz_offset * 1000
+
+    if (time1 < time2) {
+      const option = {
+        "text": {
+          "type": "plain_text",
+          "text": timeSlot[i][0] + ":" + timeSlot[i][1] + "pm",
+          "emoji": true
+        },
+        "value": timeSlot[i][0] + ":" + timeSlot[i][1]
+      }
+
+      options.push(option)
+    }
+  }
 
   respond({
     "blocks": [{
@@ -2161,167 +2099,7 @@ app.action("event_create_place_decision", async ({
             "text": "Select a Time",
             "emoji": true
           },
-          "options": [{
-              "text": {
-                "type": "plain_text",
-                "text": "12:00 pm",
-                "emoji": true
-              },
-              "value": "12:00"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "12:30 pm",
-                "emoji": true
-              },
-              "value": "12:30"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "13:00 pm",
-                "emoji": true
-              },
-              "value": "13:00"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "13:30 pm",
-                "emoji": true
-              },
-              "value": "13:30"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "14:00 pm",
-                "emoji": true
-              },
-              "value": "14:00"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "14:30 pm",
-                "emoji": true
-              },
-              "value": "14:30"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "15:00 pm",
-                "emoji": true
-              },
-              "value": "15:00"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "15:30 pm",
-                "emoji": true
-              },
-              "value": "15:30"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "16:00 pm",
-                "emoji": true
-              },
-              "value": "16:00"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "16:30 pm",
-                "emoji": true
-              },
-              "value": "16:30"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "17:00 pm",
-                "emoji": true
-              },
-              "value": "17:00"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "17:30 pm",
-                "emoji": true
-              },
-              "value": "17:30"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "18:00 pm",
-                "emoji": true
-              },
-              "value": "18:00"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "18:30 pm",
-                "emoji": true
-              },
-              "value": "18:30"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "19:00 pm",
-                "emoji": true
-              },
-              "value": "19:00"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "19:30 pm",
-                "emoji": true
-              },
-              "value": "19:30"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "20:00 pm",
-                "emoji": true
-              },
-              "value": "20:00"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "20:30 pm",
-                "emoji": true
-              },
-              "value": "20:30"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "21:00 pm",
-                "emoji": true
-              },
-              "value": "21:00"
-            },
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "21:30 pm",
-                "emoji": true
-              },
-              "value": "21:30"
-            }
-          ]
+          "options": options
         }]
       }
     ]
@@ -2632,12 +2410,26 @@ app.message(/status|Status/, ({
   })
 })
 
+app.message('info', async ({
+  context,
+  message,
+  body,
+  say
+}) => {
+  var content = await app.client.users.info({
+    token: context.botToken,
+    user: message.user,
+    include_locale: true
+  })
+  console.log(content)
+})
+
 app.message('hello', async ({
   context,
   message,
   body
 }) => {
-  let history = await app.client.im.history({
+  var history = await app.client.im.history({
     token: context.botToken,
     channel: message.channel,
     count: 5
@@ -2650,15 +2442,15 @@ app.message('delete all', async ({
   context,
   message
 }) => {
-  let history = await app.client.im.history({
+  var history = await app.client.im.history({
     token: context.botToken,
     channel: message.channel
   })
 
   for (var i = 0; i <= history.messages.length; i++) {
-    app.client.chat.delete({
+    await app.client.chat.delete({
       // fill here the `OAuth Access Token` that you in your slack app `OAuth & Permissions` section
-      token: "xoxp-786262460966-785911256039-833079405941-ba5daedd0b1372541c3d8c4efce008de",
+      token: "xoxp-786262460966-785911256039-854496118135-730c003ed25cbdd301211e3f62d269a7",
       channel: message.channel,
       ts: history.messages[i].ts,
       as_user: true
