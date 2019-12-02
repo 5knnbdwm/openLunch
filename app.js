@@ -45,7 +45,7 @@ var EventSchema = new mongoose.Schema({
   idUserOwner: String,
   idChannelOwner: String,
   location: Object,
-  time: String,
+  time: Date,
   maxPeople: Number,
   idUserMember: Array,
   idChannelMember: Array,
@@ -1077,6 +1077,11 @@ function activityUpdate(_user, _channel, _tags) {
   }
 }
 
+// message Store
+const messageStore = {
+  "status": "Some status message text. This is not important for the moment. It is just important that this is present."
+}
+
 // Slack events
 
 app.event('app_home_opened', async ({
@@ -1097,7 +1102,7 @@ app.event('app_home_opened', async ({
             "type": "section",
             "text": {
               "type": "mrkdwn",
-              "text": "Some status message text. This is not important for the moment. It is just important that this is present."
+              "text": messageStore.status
             }
           },
           {
@@ -1664,7 +1669,7 @@ app.action('account_setup_confirm', async ({
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "Some status message text. This is not important for the moment. It is just important that this is present."
+          "text": messageStore.status
         }
       },
       {
@@ -1848,7 +1853,7 @@ app.message('', async ({
       for (var i = 0; i < timeSlot.length; i++) {
 
         const time1 = new Date().getTime() + content.user.tz_offset * 1000 + 2700000
-        const time2 = new Date().setHours(Number(timeSlot[i][0]), Number(timeSlot[i][1]), 0) + content.user.tz_offset * 1000
+        const time2 = new Date().setHours(Number(timeSlot[i][0]), Number(timeSlot[i][1]), 0, 0) + content.user.tz_offset * 1000
 
         if (time1 < time2) {
           const option = {
@@ -2050,7 +2055,7 @@ app.action("event_create_place_decision", async ({
   for (var i = 0; i < timeSlot.length; i++) {
 
     const time1 = new Date().getTime() + content.user.tz_offset * 1000 + 2700000
-    const time2 = new Date().setHours(Number(timeSlot[i][0]), Number(timeSlot[i][1]), 0) + content.user.tz_offset * 1000
+    const time2 = new Date().setHours(Number(timeSlot[i][0]), Number(timeSlot[i][1]), 0, 0) + content.user.tz_offset * 1000
 
     if (time1 < time2) {
       const option = {
@@ -2123,8 +2128,7 @@ app.action('event_create_time', async ({
   ack,
   action,
   body,
-  respond,
-  say
+  respond
 }) => {
   ack()
 
@@ -2134,14 +2138,19 @@ app.action('event_create_time', async ({
     status: -2
   })
 
+  var timeSet = action.selected_option.value.split(':')
+  var eventTime = new Date().setHours(Number(timeSet[0]), Number(timeSet[1]), 0, 0)
+  
   await eventmodel.findOneAndUpdate({
     idUserOwner: body.user.id,
     idChannelOwner: body.channel.id,
     status: -2
   }, {
-    time: action.selected_option.value,
+    time: eventTime,
     status: -1
   })
+
+  eventTime = Number(eventTime.toString().slice(0, 10))
 
   respond({
     "blocks": [{
@@ -2166,7 +2175,7 @@ app.action('event_create_time', async ({
           },
           {
             "type": "mrkdwn",
-            "text": `*When:*\n${action.selected_option.value} pm`
+            "text": `*When:*\n <!date^${eventTime}^{time}|If you see this then something on your end is not working.>`
           }
         ]
       },
@@ -2249,6 +2258,8 @@ app.action('event_create_maxpeople', async ({
   }, {
     maxPeople: action.selected_option.value
   })
+  // console.log(event.time)
+  eventTime = Number(event.time.getTime().toString().slice(0, 10))
 
   respond({
     "blocks": [{
@@ -2273,7 +2284,7 @@ app.action('event_create_maxpeople', async ({
           },
           {
             "type": "mrkdwn",
-            "text": `*When:*\n${event.time} pm`
+            "text": `*When:*\n <!date^${eventTime}^{time}|If you see this then something on your end is not working.>`
           },
           {
             "type": "mrkdwn",
@@ -2299,6 +2310,78 @@ app.action('event_create_maxpeople', async ({
 })
 
 app.action('event_setup_confirm', async ({
+  ack,
+  body,
+  respond,
+  say
+}) => {
+  ack()
+
+  const event = await eventmodel.findOne({
+    idUserOwner: body.user.id,
+    idChannelOwner: body.channel.id,
+    status: -1
+  })
+
+  await eventmodel.findOneAndUpdate({
+    idUserOwner: body.user.id,
+    idChannelOwner: body.channel.id,
+    status: -1
+  }, {
+    status: 0
+  })
+
+  eventTime = Number(event.time.getTime().toString().slice(0, 10))
+
+  respond({
+    "blocks": [{
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": ":calendar: *Your event:* "
+        }
+      },
+      {
+        "type": "divider"
+      },
+      {
+        "type": "section",
+        "fields": [{
+            "type": "mrkdwn",
+            "text": `*Name:*\n${event.location.name}`
+          },
+          {
+            "type": "mrkdwn",
+            "text": `*Location:*\n${event.location.vicinity}`
+          },
+          {
+            "type": "mrkdwn",
+            "text": `*When:*\n <!date^${eventTime}^{time}|If you see this then something on your end is not working.>`
+          },
+          {
+            "type": "mrkdwn",
+            "text": `*How many:*\n${event.maxPeople} other poeple`
+          }
+        ]
+      },
+      {
+        "type": "divider"
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": ":calendar: *Your event:* "
+        }
+      },
+    ]
+  })
+
+  var tags = ["event_create_complete"]
+  activityUpdate(body.user.id, body.channel.id, tags)
+})
+
+app.action('event_join_search', async ({
   ack,
   body,
   respond,
@@ -2380,7 +2463,7 @@ app.message(/status|Status/, ({
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "Some status message text. This is not important for the moment. It is just important that this is present."
+          "text": messageStore.status
         }
       },
       {
