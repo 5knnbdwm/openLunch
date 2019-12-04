@@ -1801,7 +1801,8 @@ app.message('', async ({
       .catch(function (err) {
         console.log(err)
       })
-
+    
+    console.log(results.length)
     if (results.length === 0) {
       say({
         "blocks": [{
@@ -1880,46 +1881,68 @@ app.message('', async ({
           options.push(option)
         }
       }
-
-      say({
-        "blocks": [{
-            "type": "section",
-            "text": {
-              "type": "mrkdwn",
-              "text": ":calendar: *Your event:* Creation in progress"
-            }
-          },
-          {
-            "type": "divider"
-          },
-          {
-            "type": "section",
-            "fields": [{
+      
+      if (options.length === 0) {
+        say({
+          "blocks": [{
+              "type": "section",
+              "text": {
                 "type": "mrkdwn",
-                "text": `*Name:*\n${results[0].title}`
-              },
-              {
-                "type": "mrkdwn",
-                "text": `*Location:*\n${results[0].vicinity}`
+                "text": ":calendar: *Your event:* Notification"
               }
-            ]
-          },
-          {
-            "type": "actions",
-            "elements": [{
-              "type": "static_select",
-              "action_id": "event_create_time",
-              "placeholder": {
-                "type": "plain_text",
-                "text": "Select a Time",
-                "emoji": true
-              },
-              "options": options
-            }]
-          }
-        ]
-      })
-
+            },
+            {
+              "type": "divider"
+            },
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "I'm sorry to inform you but it is too late to create a another event for today. Please do so next morning if you want to invite people for food."
+              }
+            }
+          ]
+        })
+      } else {
+        say({
+          "blocks": [{
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": ":calendar: *Your event:* Creation in progress"
+              }
+            },
+            {
+              "type": "divider"
+            },
+            {
+              "type": "section",
+              "fields": [{
+                  "type": "mrkdwn",
+                  "text": `*Name:*\n${results[0].title}`
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": `*Location:*\n${results[0].vicinity}`
+                }
+              ]
+            },
+            {
+              "type": "actions",
+              "elements": [{
+                "type": "static_select",
+                "action_id": "event_create_time",
+                "placeholder": {
+                  "type": "plain_text",
+                  "text": "Select a Time",
+                  "emoji": true
+                },
+                "options": options
+              }]
+            }
+          ]
+        })
+      }
       var city = results[0].vicinity.split(' ')
       city = city[city.length - 1]
 
@@ -2089,45 +2112,68 @@ app.action("event_create_place_decision", async ({
     }
   }
 
-  respond({
-    "blocks": [{
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": ":calendar: *Your event:* Creation in progress"
-        }
-      },
-      {
-        "type": "divider"
-      },
-      {
-        "type": "section",
-        "fields": [{
+  if (options.length === 0) {
+    respond({
+      "blocks": [{
+          "type": "section",
+          "text": {
             "type": "mrkdwn",
-            "text": "*Name:*\n" + result.title
-          },
-          {
-            "type": "mrkdwn",
-            "text": "*Location:*\n" + result.vicinity
+            "text": ":calendar: *Your event:* Notification"
           }
-        ]
-      },
-      {
-        "type": "actions",
-        "elements": [{
-          "type": "static_select",
-          "action_id": "event_create_time",
-          "placeholder": {
-            "type": "plain_text",
-            "text": "Select a Time",
-            "emoji": true
-          },
-          "options": options
-        }]
-      }
-    ]
-  })
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "I'm sorry to inform you but it is too late to create a another event for today. Please do so next morning if you want to invite people for food."
+          }
+        }
+      ]
+    })
+  } else {
 
+    respond({
+      "blocks": [{
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":calendar: *Your event:* Creation in progress"
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "section",
+          "fields": [{
+              "type": "mrkdwn",
+              "text": "*Name:*\n" + result.title
+            },
+            {
+              "type": "mrkdwn",
+              "text": "*Location:*\n" + result.vicinity
+            }
+          ]
+        },
+        {
+          "type": "actions",
+          "elements": [{
+            "type": "static_select",
+            "action_id": "event_create_time",
+            "placeholder": {
+              "type": "plain_text",
+              "text": "Select a Time",
+              "emoji": true
+            },
+            "options": options
+          }]
+        }
+      ]
+    })
+  }
   var city = result.vicinity.split(' ')
   city = city[city.length - 1]
 
