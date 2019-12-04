@@ -2386,68 +2386,75 @@ app.action('event_join_search', async ({
 }) => {
   ack()
 
-  const event = await eventmodel.findOne({
-    idUserOwner: body.user.id,
-    idChannelOwner: body.channel.id,
-    status: -1
+  const user = await usermodel.findOne({
+    idUser: body.user.id,
+    idChannel: body.channel.id,
+  })
+  console.log(user.locationCity)
+  const events = await eventmodel.find({
+    idUserOwner: {
+      $ne: body.user.id
+    },
+    status: 0,
+    locationCity: user.locationCity
   })
 
-  await eventmodel.findOneAndUpdate({
-    idUserOwner: body.user.id,
-    idChannelOwner: body.channel.id,
-    status: -1
-  }, {
-    status: 0
-  })
-
-
-
+  // await eventmodel.findOneAndUpdate({
+  //   idUserOwner: body.user.id,
+  //   idChannelOwner: body.channel.id,
+  //   status: -1
+  // }, {
+  //   status: 0
+  // })
   respond({
-    "blocks": [{
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": ":calendar: *Your event:* "
-        }
-      },
-      {
-        "type": "divider"
-      },
-      {
-        "type": "section",
-        "fields": [{
-            "type": "mrkdwn",
-            "text": `*Name:*\n${event.location.name}`
-          },
-          {
-            "type": "mrkdwn",
-            "text": `*Location:*\n${event.location.vicinity}`
-          },
-          {
-            "type": "mrkdwn",
-            "text": `*When:*\n${event.time} pm`
-          },
-          {
-            "type": "mrkdwn",
-            "text": `*How many:*\n${event.maxPeople} other poeple`
-          }
-        ]
-      },
-      {
-        "type": "divider"
-      },
-      {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": ":calendar: *Your event:* "
-        }
-      },
-    ]
+    "text": JSON.stringify(events)
   })
+  // respond({
+  //   "blocks": [{
+  //       "type": "section",
+  //       "text": {
+  //         "type": "mrkdwn",
+  //         "text": ":calendar: *Your event:* "
+  //       }
+  //     },
+  //     {
+  //       "type": "divider"
+  //     },
+  //     {
+  //       "type": "section",
+  //       "fields": [{
+  //           "type": "mrkdwn",
+  //           "text": `*Name:*\n${event.locationName}`
+  //         },
+  //         {
+  //           "type": "mrkdwn",
+  //           "text": `*Location:*\n${event.locationVicinity}`
+  //         },
+  //         {
+  //           "type": "mrkdwn",
+  //           "text": `*When:*\n${event.time} pm`
+  //         },
+  //         {
+  //           "type": "mrkdwn",
+  //           "text": `*How many:*\n${event.maxPeople} other poeple`
+  //         }
+  //       ]
+  //     },
+  //     {
+  //       "type": "divider"
+  //     },
+  //     {
+  //       "type": "section",
+  //       "text": {
+  //         "type": "mrkdwn",
+  //         "text": ":calendar: *Your event:* "
+  //       }
+  //     },
+  //   ]
+  // })
 
-  var tags = ["event_create_complete"]
-  activityUpdate(body.user.id, body.channel.id, tags)
+  // var tags = ["event_create_complete"]
+  // activityUpdate(body.user.id, body.channel.id, tags)
 })
 
 // Testing functions
