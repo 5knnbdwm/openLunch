@@ -1888,7 +1888,7 @@ app.message('', async ({
               "type": "section",
               "text": {
                 "type": "mrkdwn",
-                "text": ":calendar: *Your event:* Notification"
+                "text": ":heavy_exclamation_mark: *Notification* "
               }
             },
             {
@@ -1898,7 +1898,7 @@ app.message('', async ({
               "type": "section",
               "text": {
                 "type": "mrkdwn",
-                "text": "I'm sorry to inform you but it is too late to create a another event for today. Please do so next morning if you want to invite people for food."
+                "text": "I'm sorry to inform, but it is too late to create a another event for today. Please do so next. As we value spontanious events, and prefer if people dont plan lunch or dinner ahed of time."
               }
             }
           ]
@@ -2118,7 +2118,7 @@ app.action("event_create_place_decision", async ({
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": ":calendar: *Your event:* Notification"
+            "text": ":heavy_exclamation_mark: *Notification* "
           }
         },
         {
@@ -2128,7 +2128,7 @@ app.action("event_create_place_decision", async ({
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": "I'm sorry to inform you but it is too late to create a another event for today. Please do so next morning if you want to invite people for food."
+            "text": "I'm sorry to inform, but it is too late to create a another event for today. Please do so next morning. As we value spontanious events, and prefer if people dont plan lunch or dinner ahed of time."
           }
         }
       ]
@@ -2470,7 +2470,7 @@ app.action('event_join_search', async ({
     idUser: body.user.id,
     idChannel: body.channel.id,
   })
-  console.log(user.locationCity)
+
   const events = await eventmodel.find({
     idUserOwner: {
       $ne: body.user.id
@@ -2530,28 +2530,97 @@ app.action('event_join_search', async ({
     }
   }
 
-  // options.sort(function(_a, _b) {
-  //   var pointA = _a.locationGeo.split(",")
-  //   var pointB = _b.locationGeo.split(",")
+  if (options.length === 0) {
+    respond({
+      "blocks": [{
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":heavy_exclamation_mark: *Notification* "
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "I'm sorry to inform, but either there are no events at the time or it is too late to look for events. As they have started already or are going to start in a few minutes.\n\nPlease check back tomorrow."
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "I can remind you to check back in tomorrow morning if that helps You to look for food events."
+          },
+          "accessory": {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "text": "Button",
+              "emoji": true
+            },
+            "action_id": "event_join_notify"
+          }
+        }
+      ]
+    })
+  } else {
+    // options.sort(function(_a, _b) {
+    //   var pointA = _a.locationGeo.split(",")
+    //   var pointB = _b.locationGeo.split(",")
 
-  //   return 0
-  // })
-  // console.log(options.sort())
+    //   return 0
+    // })
+    // console.log(options.sort())
 
-  respond({
-    "blocks": [{
-      "type": "context",
-      "elements": [{
-        "type": "mrkdwn",
-        "text": ":arrow_down: *Ordered by distance from your location*"
-      }]
-    }],
-    "attachments": options
-  })
+    respond({
+      "blocks": [{
+        "type": "context",
+        "elements": [{
+          "type": "mrkdwn",
+          "text": ":arrow_down: *Ordered by distance from your location*"
+        }]
+      }],
+      "attachments": options
+    })
+  }
   
   // var tags = ["event_create_complete"]
   // activityUpdate(body.user.id, body.channel.id, tags)
 })
+
+app.action('event_join_notify', async ({
+  ack,
+  context,
+  body,
+  respond,
+  say
+}) => {
+  ack()
+  var date = new Date().setMinutes(new Date().getMinutes() + 1).toString().slice(0, 10)
+  // console.log(date)
+  try {
+    // Call the chat.scheduleMessage method with a token
+    const result = await app.client.chat.scheduleMessage({
+      // The token you used to initialize your app is stored in the `context` object
+      token: context.botToken,
+      channel: body.channel.id,
+      post_at: date,
+      text: 'Hey, You wanted me to remind you of checking up for food events for today'
+    });
+  } catch (error) {
+    console.error(error);
+  }
+  // var tags = ["event_create_complete"]
+  // activityUpdate(body.user.id, body.channel.id, tags)
+})
+
 
 // Testing functions
 
