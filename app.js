@@ -30,7 +30,10 @@ var UserSchema = new mongoose.Schema({
   idUser: String,
   idChannel: String,
   lastActivity: Date,
-  location: Object,
+  locationGeo: String,
+  locationCity: String,
+  locationDistrict: String,
+  locationPostCode: Number,
   status: Number
 })
 var usermodel = mongoose.model('user', UserSchema)
@@ -44,7 +47,11 @@ var activitymodel = mongoose.model('activity', ActivitySchema)
 var EventSchema = new mongoose.Schema({
   idUserOwner: String,
   idChannelOwner: String,
-  location: Object,
+  locationName: String,
+  locationVicinity: String,
+  locationCity: String,
+  locationGeo: String,
+  locationId: String,
   time: Date,
   maxPeople: Number,
   idUserMember: Array,
@@ -1216,12 +1223,10 @@ app.action('account_setup_approved', async ({
     idUser: body.user.id,
     idChannel: body.channel.id,
     lastActivity: new Date(),
-    location: {
-      "geo": "",
-      "city": "",
-      "district": "",
-      "postCode": ""
-    },
+    locationGeo: "",
+    locationCity: "",
+    locationDistrict: "",
+    locationPostCode: null,
     status: -2
   })
   await userAdd.save()
@@ -1364,12 +1369,7 @@ app.action('account_setup_city', async ({
     idUser: body.user.id,
     idChannel: body.channel.id
   }, {
-    location: {
-      "geo": "",
-      "city": action.selected_option.value,
-      "district": "",
-      "postCode": ""
-    },
+    locationCity: action.selected_option.value
   })
 
   const districtOptions = filterDistrict(action.selected_option.value)
@@ -1441,15 +1441,10 @@ app.action('account_setup_district', async ({
     idUser: body.user.id,
     idChannel: body.channel.id
   }, {
-    location: {
-      "geo": "",
-      "city": user.location.city,
-      "district": action.selected_option.value,
-      "postCode": ""
-    },
+    locationDistrict: action.selected_option.value
   })
 
-  const districtOptions = filterDistrict(user.location.city)
+  const districtOptions = filterDistrict(user.locationCity)
   const postCodeOptions = filterPostCode(action.selected_option.value)
 
   respond({
@@ -1481,10 +1476,10 @@ app.action('account_setup_district', async ({
             "initial_option": {
               "text": {
                 "type": "plain_text",
-                "text": user.location.city,
+                "text": user.locationCity,
                 "emoji": true
               },
-              "value": user.location.city
+              "value": user.locationCity
             }
           },
           {
@@ -1537,16 +1532,11 @@ app.action('account_setup_postcode', async ({
     idUser: body.user.id,
     idChannel: body.channel.id
   }, {
-    location: {
-      "geo": "",
-      "city": user.location.city,
-      "district": user.location.district,
-      "postCode": action.selected_option.value
-    },
+    locationPostCode: action.selected_option.value
   })
 
-  const districtOptions = filterDistrict(user.location.city)
-  const postCodeOptions = filterPostCode(user.location.district)
+  const districtOptions = filterDistrict(user.locationCity)
+  const postCodeOptions = filterPostCode(user.locationDistrict)
 
   respond({
     "blocks": [{
@@ -1577,10 +1567,10 @@ app.action('account_setup_postcode', async ({
             "initial_option": {
               "text": {
                 "type": "plain_text",
-                "text": user.location.city,
+                "text": user.locationCity,
                 "emoji": true
               },
-              "value": user.location.city
+              "value": user.locationCity
             }
           },
           {
@@ -1595,10 +1585,10 @@ app.action('account_setup_postcode', async ({
             "initial_option": {
               "text": {
                 "type": "plain_text",
-                "text": user.location.district,
+                "text": user.locationDistrict,
                 "emoji": true
               },
-              "value": user.location.district
+              "value": user.locationDistrict
             }
           },
           {
@@ -1652,12 +1642,7 @@ app.action('account_setup_confirm', async ({
     idChannel: body.channel.id
   }, {
     lastActivity: new Date(),
-    location: {
-      "geo": filterGeo(user.location.postCode),
-      "city": user.location.city,
-      "district": user.location.district,
-      "postCode": user.location.postCode
-    },
+    locationGeo: filterGeo(user.locationPostCode.toString()),
     status: 0
   })
 
@@ -1772,15 +1757,16 @@ app.message('', async ({
     var optionsSearch = {
       uri: 'https://places.cit.api.here.com/places/v1/discover/search',
       qs: {
-        at: user.location.geo,
+        in: user.locationGeo + ";r=10000",
+        // at: user.locationGeo,
         q: message.text,
         tf: "plain",
+        cs: "cuisines",
         app_id: process.env.HERE_APP_ID,
         app_code: process.env.HERE_APP_CODE
       },
       json: true
     };
-
 
     await rp(optionsSearch)
       .then(function (body) {
@@ -1827,26 +1813,26 @@ app.message('', async ({
       })
 
       var timeSlot = [
-        ["12", "00"],
-        ["12", "30"],
-        ["13", "00"],
-        ["13", "30"],
-        ["14", "00"],
-        ["14", "30"],
-        ["15", "00"],
-        ["15", "30"],
-        ["16", "00"],
-        ["16", "30"],
-        ["17", "00"],
-        ["17", "30"],
-        ["18", "00"],
-        ["18", "30"],
-        ["19", "00"],
-        ["19", "30"],
-        ["20", "00"],
-        ["20", "30"],
-        ["21", "00"],
-        ["21", "30"]
+        ["12", "00", "12"],
+        ["12", "30", "12"],
+        ["13", "00", "1"],
+        ["13", "30", "1"],
+        ["14", "00", "2"],
+        ["14", "30", "2"],
+        ["15", "00", "3"],
+        ["15", "30", "3"],
+        ["16", "00", "4"],
+        ["16", "30", "4"],
+        ["17", "00", "5"],
+        ["17", "30", "5"],
+        ["18", "00", "6"],
+        ["18", "30", "6"],
+        ["19", "00", "7"],
+        ["19", "30", "7"],
+        ["20", "00", "8"],
+        ["20", "30", "8"],
+        ["21", "00", "9"],
+        ["21", "30", "9"]
       ]
       var options = []
 
@@ -1859,7 +1845,7 @@ app.message('', async ({
           const option = {
             "text": {
               "type": "plain_text",
-              "text": timeSlot[i][0] + ":" + timeSlot[i][1] + "pm",
+              "text": timeSlot[i][2] + ":" + timeSlot[i][1] + "pm",
               "emoji": true
             },
             "value": timeSlot[i][0] + ":" + timeSlot[i][1]
@@ -1885,8 +1871,8 @@ app.message('', async ({
             "fields": [{
                 "type": "mrkdwn",
                 "text": `*Name:*\n${results[0].title}`
-                },
-                {
+              },
+              {
                 "type": "mrkdwn",
                 "text": `*Location:*\n${results[0].vicinity}`
               }
@@ -1908,15 +1894,21 @@ app.message('', async ({
         ]
       })
 
+      var city = results[0].vicinity.split(' ')
+      city = city[city.length - 1]
+
       var eventAdd = new eventmodel({
         idUserOwner: message.user,
         idChannelOwner: message.channel,
-        location: {
-          "name": results[0].title,
-          "vicinity": results[0].vicinity,
-          "geo": results[0].position[0] + ',' + results[0].position[1],
-          "id": results[0].id
-        },
+        locationName: results[0].title,
+        locationVicinity: results[0].vicinity,
+        locationCity: city,
+        locationGeo: results[0].position[0] + ',' + results[0].position[1],
+        locationId: results[0].id,
+        time: null,
+        maxPeople: null,
+        idUserMember: [],
+        idChannelMember: [],
         status: -2
       })
       await eventAdd.save()
@@ -2029,26 +2021,26 @@ app.action("event_create_place_decision", async ({
   })
 
   var timeSlot = [
-    ["12", "00"],
-    ["12", "30"],
-    ["13", "00"],
-    ["13", "30"],
-    ["14", "00"],
-    ["14", "30"],
-    ["15", "00"],
-    ["15", "30"],
-    ["16", "00"],
-    ["16", "30"],
-    ["17", "00"],
-    ["17", "30"],
-    ["18", "00"],
-    ["18", "30"],
-    ["19", "00"],
-    ["19", "30"],
-    ["20", "00"],
-    ["20", "30"],
-    ["21", "00"],
-    ["21", "30"]
+    ["12", "00", "12"],
+    ["12", "30", "12"],
+    ["13", "00", "1"],
+    ["13", "30", "1"],
+    ["14", "00", "2"],
+    ["14", "30", "2"],
+    ["15", "00", "3"],
+    ["15", "30", "3"],
+    ["16", "00", "4"],
+    ["16", "30", "4"],
+    ["17", "00", "5"],
+    ["17", "30", "5"],
+    ["18", "00", "6"],
+    ["18", "30", "6"],
+    ["19", "00", "7"],
+    ["19", "30", "7"],
+    ["20", "00", "8"],
+    ["20", "30", "8"],
+    ["21", "00", "9"],
+    ["21", "30", "9"]
   ]
   var options = []
 
@@ -2061,7 +2053,7 @@ app.action("event_create_place_decision", async ({
       const option = {
         "text": {
           "type": "plain_text",
-          "text": timeSlot[i][0] + ":" + timeSlot[i][1] + "pm",
+          "text": timeSlot[i][2] + ":" + timeSlot[i][1] + "pm",
           "emoji": true
         },
         "value": timeSlot[i][0] + ":" + timeSlot[i][1]
@@ -2110,15 +2102,21 @@ app.action("event_create_place_decision", async ({
     ]
   })
 
+  var city = result.vicinity.split(' ')
+  city = city[city.length - 1]
+
   var eventAdd = new eventmodel({
     idUserOwner: body.user.id,
     idChannelOwner: body.channel.id,
-    location: {
-      "name": result.title,
-      "vicinity": result.vicinity,
-      "geo": result.position[0] + ',' + result.position[1],
-      "id": result.id
-    },
+    locationName: result.title,
+    locationVicinity: result.vicinity,
+    locationCity: city,
+    locationGeo: result.position[0] + ',' + result.position[1],
+    locationId: result.id,
+    time: null,
+    maxPeople: null,
+    idUserMember: [],
+    idChannelMember: [],
     status: -2
   })
   await eventAdd.save()
@@ -2140,7 +2138,7 @@ app.action('event_create_time', async ({
 
   var timeSet = action.selected_option.value.split(':')
   var eventTime = new Date().setHours(Number(timeSet[0]), Number(timeSet[1]), 0, 0)
-  
+
   await eventmodel.findOneAndUpdate({
     idUserOwner: body.user.id,
     idChannelOwner: body.channel.id,
@@ -2167,11 +2165,11 @@ app.action('event_create_time', async ({
         "type": "section",
         "fields": [{
             "type": "mrkdwn",
-            "text": `*Name:*\n${event.location.name}`
+            "text": `*Name:*\n${event.locationName}`
           },
           {
             "type": "mrkdwn",
-            "text": `*Location:*\n${event.location.vicinity}`
+            "text": `*Location:*\n${event.locationVicinity}`
           },
           {
             "type": "mrkdwn",
@@ -2258,7 +2256,6 @@ app.action('event_create_maxpeople', async ({
   }, {
     maxPeople: action.selected_option.value
   })
-  // console.log(event.time)
   eventTime = Number(event.time.getTime().toString().slice(0, 10))
 
   respond({
@@ -2276,11 +2273,11 @@ app.action('event_create_maxpeople', async ({
         "type": "section",
         "fields": [{
             "type": "mrkdwn",
-            "text": `*Name:*\n${event.location.name}`
+            "text": `*Name:*\n${event.locationName}`
           },
           {
             "type": "mrkdwn",
-            "text": `*Location:*\n${event.location.vicinity}`
+            "text": `*Location:*\n${event.locationVicinity}`
           },
           {
             "type": "mrkdwn",
@@ -2348,11 +2345,11 @@ app.action('event_setup_confirm', async ({
         "type": "section",
         "fields": [{
             "type": "mrkdwn",
-            "text": `*Name:*\n${event.location.name}`
+            "text": `*Name:*\n${event.locationName}`
           },
           {
             "type": "mrkdwn",
-            "text": `*Location:*\n${event.location.vicinity}`
+            "text": `*Location:*\n${event.locationVicinity}`
           },
           {
             "type": "mrkdwn",
