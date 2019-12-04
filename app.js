@@ -1084,6 +1084,32 @@ function activityUpdate(_user, _channel, _tags) {
   }
 }
 
+function calcDist(_userLocation, _eventLocation) {
+  var userGeo = _userLocation.split(",")
+  var lat1 = Number(userGeo[0])
+  var lon1 = Number(userGeo[1])
+  var eventGeo = _eventLocation.split(",")
+  var lat2 = Number(eventGeo[0])
+  var lon2 = Number(eventGeo[1])
+
+  const R = 6371; // Radius of t earth
+
+  var latDistance = toRadians(lat2 - lat1)
+  var lonDistance = toRadians(lon2 - lon1)
+  var a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2) + Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2)
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  var distance = R * c * 1000 // convert to meters
+  distance = Math.pow(distance, 2)
+
+  console.log(Math.sqrt(distance))
+  return Math.sqrt(distance)
+}
+
+function toRadians(degrees) {
+  var pi = Math.PI;
+  return degrees * (pi / 180);
+}
+
 // message Store
 const messageStore = {
   "status": "Some status message text. This is not important for the moment. It is just important that this is present."
@@ -2190,6 +2216,14 @@ app.action('event_create_time', async ({
           "options": [{
               "text": {
                 "type": "plain_text",
+                "text": "2 other people",
+                "emoji": true
+              },
+              "value": "2"
+            },
+            {
+              "text": {
+                "type": "plain_text",
                 "text": "3 other people",
                 "emoji": true
               },
@@ -2396,63 +2430,79 @@ app.action('event_join_search', async ({
       $ne: body.user.id
     },
     status: 0,
+    time: {
+      $gte: new Date().setHours(6, 0, 0, 0),
+      $lt: new Date().setHours(23, 0, 0, 0)
+    },
     locationCity: user.locationCity
   })
 
-  // await eventmodel.findOneAndUpdate({
-  //   idUserOwner: body.user.id,
-  //   idChannelOwner: body.channel.id,
-  //   status: -1
-  // }, {
-  //   status: 0
-  // })
-  respond({
-    "text": JSON.stringify(events)
-  })
-  // respond({
-  //   "blocks": [{
-  //       "type": "section",
-  //       "text": {
-  //         "type": "mrkdwn",
-  //         "text": ":calendar: *Your event:* "
-  //       }
-  //     },
-  //     {
-  //       "type": "divider"
-  //     },
-  //     {
-  //       "type": "section",
-  //       "fields": [{
-  //           "type": "mrkdwn",
-  //           "text": `*Name:*\n${event.locationName}`
-  //         },
-  //         {
-  //           "type": "mrkdwn",
-  //           "text": `*Location:*\n${event.locationVicinity}`
-  //         },
-  //         {
-  //           "type": "mrkdwn",
-  //           "text": `*When:*\n${event.time} pm`
-  //         },
-  //         {
-  //           "type": "mrkdwn",
-  //           "text": `*How many:*\n${event.maxPeople} other poeple`
-  //         }
-  //       ]
-  //     },
-  //     {
-  //       "type": "divider"
-  //     },
-  //     {
-  //       "type": "section",
-  //       "text": {
-  //         "type": "mrkdwn",
-  //         "text": ":calendar: *Your event:* "
-  //       }
-  //     },
-  //   ]
-  // })
+  var options = []
 
+  if (events.length > 7) {
+    var number = 8
+  } else {
+    var number = events.length
+  }
+
+  for (let i = 0; i < number; i++) {
+    const element = events[i];
+
+    if (element.maxPeople > element.idChannelMember.length) {
+      var dist = calcDist(user.locationGeo, element.locationGeo)
+
+      var color = "#03BA0F"
+      if (dist > 1300) {
+        color = "#EA9F1E"
+      }
+      if (dist > 2500) {
+        color = "#DD0003"
+      }
+      const option = {
+        "color": color,
+        "blocks": [{
+          "type": "section",
+          "text": {
+            "type": "plain_text",
+            "text": element.locationName,
+            "emoji": true
+          },
+          "accessory": {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "emoji": true,
+              "text": "Choose"
+            },
+            "value": element._id,
+            "action_id": "event_join_place"
+          }
+        }]
+      }
+
+      options.push(option)
+    }
+  }
+
+  // options.sort(function(_a, _b) {
+  //   var pointA = _a.locationGeo.split(",")
+  //   var pointB = _b.locationGeo.split(",")
+
+  //   return 0
+  // })
+  // console.log(options.sort())
+
+  respond({
+    "blocks": [{
+      "type": "context",
+      "elements": [{
+        "type": "mrkdwn",
+        "text": ":arrow_down: *Ordered by distance from your location*"
+      }]
+    }],
+    "attachments": options
+  })
+  
   // var tags = ["event_create_complete"]
   // activityUpdate(body.user.id, body.channel.id, tags)
 })
