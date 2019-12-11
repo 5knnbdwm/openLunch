@@ -56,6 +56,7 @@ var EventSchema = new mongoose.Schema({
   maxPeople: Number,
   idUserMember: Array,
   idChannelMember: Array,
+  infoMember: Array,
   status: Number
 })
 var eventmodel = mongoose.model('event', EventSchema)
@@ -1069,7 +1070,7 @@ function activityUpdate(_user, _channel, _tags) {
   const channel = _channel
   const tags = _tags
 
-  const logging = true
+  const logging = false
 
   var activityUpdate = new activitymodel({
     idUser: user,
@@ -1101,7 +1102,7 @@ function calcDist(_userLocation, _eventLocation) {
   var distance = R * c * 1000 // convert to meters
   distance = Math.pow(distance, 2)
 
-  console.log(Math.sqrt(distance))
+  // console.log(Math.sqrt(distance))
   return Math.sqrt(distance)
 }
 
@@ -1165,8 +1166,14 @@ app.event('app_home_opened', async ({
       })
 
       var tags = ["app_home_opened", "after_6_hours"]
-      activityUpdate(body.user.id, body.channel.id, tags)
+      activityUpdate(event.user, event.channel, tags)
 
+      await usermodel.findOneAndUpdate({
+        idUser: event.user,
+        idChannel: event.channel
+      }, {
+        lastActivity: new Date()
+      })
       // second option, if last userActivity + 6 hours is smaller than the current time  
     } else {
       var tags = ["app_home_opened", "within_6_hours"]
@@ -1801,8 +1808,7 @@ app.message('', async ({
       .catch(function (err) {
         console.log(err)
       })
-    
-    console.log(results.length)
+
     if (results.length === 0) {
       say({
         "blocks": [{
@@ -1881,7 +1887,7 @@ app.message('', async ({
           options.push(option)
         }
       }
-      
+
       if (options.length === 0) {
         say({
           "blocks": [{
@@ -1949,6 +1955,7 @@ app.message('', async ({
       var eventAdd = new eventmodel({
         idUserOwner: message.user,
         idChannelOwner: message.channel,
+        tokenOwner: context.botToken,
         locationName: results[0].title,
         locationVicinity: results[0].vicinity,
         locationCity: city,
@@ -1958,7 +1965,8 @@ app.message('', async ({
         maxPeople: null,
         idUserMember: [],
         idChannelMember: [],
-        status: -2
+        infoMember: [],
+        status: -3
       })
       await eventAdd.save()
 
@@ -2180,6 +2188,7 @@ app.action("event_create_place_decision", async ({
   var eventAdd = new eventmodel({
     idUserOwner: body.user.id,
     idChannelOwner: body.channel.id,
+    tokenOwner: context.botToken,
     locationName: result.title,
     locationVicinity: result.vicinity,
     locationCity: city,
@@ -2189,7 +2198,8 @@ app.action("event_create_place_decision", async ({
     maxPeople: null,
     idUserMember: [],
     idChannelMember: [],
-    status: -2
+    infoMember: [],
+    status: -3
   })
   await eventAdd.save()
 })
@@ -2205,7 +2215,7 @@ app.action('event_create_time', async ({
   const event = await eventmodel.findOne({
     idUserOwner: body.user.id,
     idChannelOwner: body.channel.id,
-    status: -2
+    status: -3
   })
 
   var timeSet = action.selected_option.value.split(':')
@@ -2214,10 +2224,10 @@ app.action('event_create_time', async ({
   await eventmodel.findOneAndUpdate({
     idUserOwner: body.user.id,
     idChannelOwner: body.channel.id,
-    status: -2
+    status: -3
   }, {
     time: eventTime,
-    status: -1
+    status: -2
   })
 
   eventTime = Number(eventTime.toString().slice(0, 10))
@@ -2326,15 +2336,16 @@ app.action('event_create_maxpeople', async ({
   const event = await eventmodel.findOne({
     idUserOwner: body.user.id,
     idChannelOwner: body.channel.id,
-    status: -1
+    status: -2
   })
 
   await eventmodel.findOneAndUpdate({
     idUserOwner: body.user.id,
     idChannelOwner: body.channel.id,
-    status: -1
+    status: -2
   }, {
-    maxPeople: action.selected_option.value
+    maxPeople: action.selected_option.value,
+    status: -1
   })
   eventTime = Number(event.time.getTime().toString().slice(0, 10))
 
@@ -2440,17 +2451,7 @@ app.action('event_setup_confirm', async ({
             "text": `*How many:*\n${event.maxPeople} other poeple`
           }
         ]
-      },
-      {
-        "type": "divider"
-      },
-      {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": ":calendar: *Your event:* "
-        }
-      },
+      }
     ]
   })
 
@@ -2492,10 +2493,10 @@ app.action('event_join_search', async ({
   }
 
   for (let i = 0; i < number; i++) {
-    const element = events[i];
+    const event = events[i];
 
-    if (element.maxPeople > element.idChannelMember.length) {
-      var dist = calcDist(user.locationGeo, element.locationGeo)
+    if (event.maxPeople > event.idChannelMember.length) {
+      var dist = calcDist(user.locationGeo, event.locationGeo)
 
       var color = "#03BA0F"
       if (dist > 1300) {
@@ -2509,9 +2510,8 @@ app.action('event_join_search', async ({
         "blocks": [{
           "type": "section",
           "text": {
-            "type": "plain_text",
-            "text": element.locationName,
-            "emoji": true
+            "type": "mrkdwn",
+            "text": `*${event.locationName}* :fork_and_knife: \n<!date^${event.time.getTime().toString().slice(0, 10)}^{time}|If you see this then something on your end is not working.>\n${event.idChannelMember.length + 1} / ${event.maxPeople + 1} people`
           },
           "accessory": {
             "type": "button",
@@ -2520,8 +2520,8 @@ app.action('event_join_search', async ({
               "emoji": true,
               "text": "Choose"
             },
-            "value": element._id,
-            "action_id": "event_join_place"
+            "value": event._id,
+            "action_id": "event_join_confirm"
           }
         }]
       }
@@ -2556,13 +2556,13 @@ app.action('event_join_search', async ({
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": "I can remind you to check back in tomorrow morning if that helps You to look for food events."
+            "text": "If you want to be reminded to check back in tomorrow morning I can do that. It might help You to look for food events."
           },
           "accessory": {
             "type": "button",
             "text": {
               "type": "plain_text",
-              "text": "Button",
+              "text": "Notify",
               "emoji": true
             },
             "action_id": "event_join_notify"
@@ -2581,16 +2581,212 @@ app.action('event_join_search', async ({
 
     respond({
       "blocks": [{
-        "type": "context",
-        "elements": [{
-          "type": "mrkdwn",
-          "text": ":arrow_down: *Ordered by distance from your location*"
-        }]
-      }],
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*Please select a restaurant:*"
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "context",
+          "elements": [{
+            "type": "mrkdwn",
+            "text": ":arrow_down: *Ordered by distance from your location*"
+          }]
+        }
+      ],
       "attachments": options
     })
   }
-  
+
+  // var tags = ["event_create_complete"]
+  // activityUpdate(body.user.id, body.channel.id, tags)
+})
+
+app.action('event_join_confirm', async ({
+  ack,
+  context,
+  body,
+  respond,
+  action,
+  say
+}) => {
+  ack()
+  const user = await usermodel.findOneAndUpdate({
+    idUser: body.user.id,
+    idChannel: body.channel.id,
+  }, {
+    status: 4
+    // status: 3
+  })
+
+  const event = await eventmodel.findByIdAndUpdate({
+    _id: body.actions[0].value
+  }, {
+    $push: {
+      idUserMember: body.user.id,
+      idChannelMember: body.channel.id
+    }
+  })
+
+  // Event owner message 
+  var history = await app.client.im.history({
+    token: context.botToken,
+    channel: event.idChannelOwner,
+    count: 5
+  })
+  for (var i = 0; history.messages.length > i; i++) {
+    const element = history.messages[i]
+
+    if (element.subtype !== undefined) {
+      app.client.chat.delete({
+        token: context.botToken,
+        channel: event.idChannelOwner,
+        ts: history.messages[i].ts
+      })
+      break
+    }
+  }
+  await app.client.chat.postMessage({
+    token: context.botToken,
+    channel: event.idChannelOwner,
+    // text: 'asdasdasdasdas\nasdasdasdasdasd'
+    blocks: [{
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": ":calendar: *Event status:* "
+        }
+      },
+      {
+        "type": "divider"
+      },
+      {
+        "type": "section",
+        "fields": [{
+            "type": "mrkdwn",
+            "text": `*Name:*\n${event.locationName}`
+          },
+          {
+            "type": "mrkdwn",
+            "text": `*Location:*\n${event.locationVicinity}`
+          },
+          {
+            "type": "mrkdwn",
+            "text": `*When:*\n <!date^${event.time.getTime().toString().slice(0, 10)}^{time}|If you see this then something on your end is not working.>`
+          },
+          {
+            "type": "mrkdwn",
+            "text": `*How many:*\n${event.idUserMember.length + 2} / ${event.maxPeople + 1} people`
+          }
+        ]
+      }
+    ]
+  })
+
+  // event member message
+  for (var i = 0; i < event.idUserMember.length; i++){
+    var history = await app.client.im.history({
+      token: context.botToken,
+      channel: event.idChannelMember[i],
+      count: 5
+    })
+    for (var i = 0; history.messages.length > i; i++) {
+      const element = history.messages[i]
+
+      if (element.subtype !== undefined) {
+        app.client.chat.delete({
+          token: context.botToken,
+          channel: event.idChannelMember[i],
+          ts: history.messages[i].ts
+        })
+        break
+      }
+    }
+    await app.client.chat.postMessage({
+      token: context.botToken,
+      channel: event.idChannelMember[i],
+      // text: 'asdasdasdasdas\nasdasdasdasdasd'
+      blocks: [{
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":calendar: *Event status:* "
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "section",
+          "fields": [{
+              "type": "mrkdwn",
+              "text": `*Name:*\n${event.locationName}`
+            },
+            {
+              "type": "mrkdwn",
+              "text": `*Location:*\n${event.locationVicinity}`
+            },
+            {
+              "type": "mrkdwn",
+              "text": `*When:*\n <!date^${event.time.getTime().toString().slice(0, 10)}^{time}|If you see this then something on your end is not working.>`
+            },
+            {
+              "type": "mrkdwn",
+              "text": `*How many:*\n${event.idUserMember.length + 2} / ${event.maxPeople + 1} people`
+            }
+          ]
+        }
+      ]
+    })
+  }
+
+  respond({
+    "blocks": [{
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": ":calendar: *Event status:* "
+        }
+      },
+      {
+        "type": "divider"
+      },
+      {
+        "type": "section",
+        "fields": [{
+            "type": "mrkdwn",
+            "text": `*Name:*\n${event.locationName}`
+          },
+          {
+            "type": "mrkdwn",
+            "text": `*Location:*\n${event.locationVicinity}`
+          },
+          {
+            "type": "mrkdwn",
+            "text": `*When:*\n <!date^${event.time.getTime().toString().slice(0, 10)}^{time}|If you see this then something on your end is not working.>`
+          },
+          {
+            "type": "mrkdwn",
+            "text": `*How many:*\n${event.idUserMember.length + 2} / ${event.maxPeople + 1} people`
+          }
+        ]
+      },
+      // {
+      //   "type": "divider"
+      // },
+      // {
+      //   "type": "section",
+      //   "text": {
+      //     "type": "mrkdwn",
+      //     "text": ":calendar: *Your event:* "
+      //   }
+      // },
+    ]
+  })
   // var tags = ["event_create_complete"]
   // activityUpdate(body.user.id, body.channel.id, tags)
 })
@@ -2603,139 +2799,109 @@ app.action('event_join_notify', async ({
   say
 }) => {
   ack()
-  var date = new Date().setMinutes(new Date().getMinutes() + 1).toString().slice(0, 10)
-  // console.log(date)
+
+  var now = new Date()
+  var time = new Date(now.getFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 7, 0, 0, 0).getTime().toString().slice(0, 10)
+
+  respond({
+    "blocks": [{
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": ":heavy_exclamation_mark: *Notification* "
+        }
+      },
+      {
+        "type": "divider"
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "I'm sorry to inform, but either there are no events at the time or it is too late to look for events. As they have started already or are going to start in a few minutes.\n\nPlease check back tomorrow."
+        }
+      },
+      {
+        "type": "divider"
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "I will remind you tomorrow morning to check back in."
+        }
+      },
+    ]
+  })
+
   try {
-    // Call the chat.scheduleMessage method with a token
     const result = await app.client.chat.scheduleMessage({
-      // The token you used to initialize your app is stored in the `context` object
       token: context.botToken,
       channel: body.channel.id,
-      post_at: date,
+      post_at: time,
       text: 'Hey, You wanted me to remind you of checking up for food events for today'
     });
   } catch (error) {
     console.error(error);
   }
-  // var tags = ["event_create_complete"]
-  // activityUpdate(body.user.id, body.channel.id, tags)
+  var tags = ["event_join_notify"]
+  activityUpdate(body.user.id, body.channel.id, tags)
 })
-
 
 // Testing functions
 
-app.message(/status|Status/, ({
+app.message(/hello|Hello|hallo|Hallo|hi|Hi|hey|Hey/, ({
   say
 }) => {
-  say({
-    "blocks": [{
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": messageStore.status
-        }
-      },
-      {
-        "type": "actions",
-        "elements": [{
-            "type": "button",
-            "text": {
-              "type": "plain_text",
-              "emoji": true,
-              "text": "Look for event"
-            },
-            "style": "primary",
-            "action_id": "event_join_search"
-          },
-          {
-            "type": "button",
-            "text": {
-              "type": "plain_text",
-              "emoji": true,
-              "text": "Create event"
-            },
-            "action_id": "event_create_place"
-          }
-        ]
-      }
-    ]
-  })
+  say('Hi, this is currently the only command that does something outside of the direction interaction pattern directed by the messages I send. And even with this command I can only respond with this pre-set message.\nSorry, there is no secret that I can give to you.')
 })
 
-app.message('info', async ({
-  context,
-  message,
-  body,
-  say
-}) => {
-  var content = await app.client.users.info({
-    token: context.botToken,
-    user: message.user,
-    include_locale: true
-  })
-  console.log(content)
-})
+// app.message('__delete all', async ({
+//   context,
+//   message
+// }) => {
+//   var history = await app.client.im.history({
+//     token: context.botToken,
+//     channel: message.channel
+//   })
 
-app.message('hello', async ({
-  context,
-  message,
-  body
-}) => {
-  var history = await app.client.im.history({
-    token: context.botToken,
-    channel: message.channel,
-    count: 5
-  })
-  history = history.messages
-  console.log(history)
-})
+//   for (var i = 0; i <= history.messages.length; i++) {
+//     await app.client.chat.delete({
+//       // fill here the `OAuth Access Token` that you in your slack app `OAuth & Permissions` section
+//       token: process.env.SLACK_OAUTH_ACCESS_TOKEN,
+//       channel: message.channel,
+//       ts: history.messages[i].ts,
+//       as_user: true
+//     });
+//   }
+// })
 
-app.message('delete all', async ({
-  context,
-  message
-}) => {
-  var history = await app.client.im.history({
-    token: context.botToken,
-    channel: message.channel
-  })
+// app.message('__create me', async ({
+//   message
+// }) => {
+//   var userAdd = new usermodel({
+//     idUser: message.user,
+//     idChannel: message.channel,
+//     lastActivity: new Date(),
+//     location: {
+//       geo: "52.5731,13.4171",
+//       city: "Berlin",
+//       district: "Pankow",
+//       postCode: "13187"
+//     },
+//     status: 3
+//   })
+//   await userAdd.save()
+// })
 
-  for (var i = 0; i <= history.messages.length; i++) {
-    await app.client.chat.delete({
-      // fill here the `OAuth Access Token` that you in your slack app `OAuth & Permissions` section
-      token: process.env.SLACK_OAUTH_ACCESS_TOKEN,
-      channel: message.channel,
-      ts: history.messages[i].ts,
-      as_user: true
-    });
-  }
-})
-
-app.message('create me', async ({
-  message
-}) => {
-  var userAdd = new usermodel({
-    idUser: message.user,
-    idChannel: message.channel,
-    lastActivity: new Date(),
-    location: {
-      geo: "52.5731,13.4171",
-      city: "Berlin",
-      district: "Pankow",
-      postCode: "13187"
-    },
-    status: 3
-  })
-  await userAdd.save()
-})
-
-app.message('delete me', async ({
-  message
-}) => {
-  await usermodel.findOneAndDelete({
-    idUser: message.user,
-    idChannel: message.channel
-  })
-})
+// app.message('__delete me', async ({
+//   message
+// }) => {
+//   await usermodel.findOneAndDelete({
+//     idUser: message.user,
+//     idChannel: message.channel
+//   })
+// })
 
 // Setup functions
 
