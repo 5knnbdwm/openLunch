@@ -2853,7 +2853,7 @@ app.action('event_join_notify', async ({
 app.message(/hello|Hello|hallo|Hallo|hi|Hi|hey|Hey/, ({
   say
 }) => {
-  say('Hi, this is currently the only command that does something outside of the direction interaction pattern directed by the messages I send. And even with this command I can only respond with this pre-set message.\nSorry, there is no secret that I can give to you.')
+  say('Hi, I\'m sorry to inform you but this is a dead end.\nThere is nothing else.')
 })
 
 // app.message('__delete all', async ({
