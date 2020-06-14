@@ -14,7 +14,7 @@ const app = new App({
 })
 
 const mongoose = require('mongoose')
-mongoose.connect('mongodb://localhost/slack_bot', {
+mongoose.connect('mongodb://localhost/openlunch', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -2848,60 +2848,114 @@ app.action('event_join_notify', async ({
   activityUpdate(body.user.id, body.channel.id, tags)
 })
 
-// Testing functions
-
-app.message(/hello|Hello|hallo|Hallo|hi|Hi|hey|Hey/, ({
+app.message(/help|Help/, ({
   say
 }) => {
-  say('Hi, I\'m sorry to inform you but this is a dead end.\nThere is nothing else.')
+  say({
+    "blocks": [{
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "If in need contact samuel@soeller.dev"
+      }
+    }]
+  })
 })
 
-// app.message('__delete all', async ({
-//   context,
-//   message
-// }) => {
-//   var history = await app.client.im.history({
-//     token: context.botToken,
-//     channel: message.channel
-//   })
+// Testing functions
 
-//   for (var i = 0; i <= history.messages.length; i++) {
-//     await app.client.chat.delete({
-//       // fill here the `OAuth Access Token` that you in your slack app `OAuth & Permissions` section
-//       token: process.env.SLACK_OAUTH_ACCESS_TOKEN,
-//       channel: message.channel,
-//       ts: history.messages[i].ts,
-//       as_user: true
-//     });
-//   }
+// app.message(/hello|Hello|hallo|Hallo|hi|Hi|hey|Hey/, ({
+//   say
+// }) => {
+//   say('Hi, I\'m sorry to inform you but this is a dead end.\nThere is nothing else.')
 // })
 
-// app.message('__create me', async ({
-//   message
-// }) => {
-//   var userAdd = new usermodel({
-//     idUser: message.user,
-//     idChannel: message.channel,
-//     lastActivity: new Date(),
-//     location: {
-//       geo: "52.5731,13.4171",
-//       city: "Berlin",
-//       district: "Pankow",
-//       postCode: "13187"
-//     },
-//     status: 3
-//   })
-//   await userAdd.save()
-// })
+app.message('status', async ({
+  context,
+  message,
+  say
+}) => {
+  say({
+    "blocks": [{
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": messageStore.status
+        }
+      },
+      {
+        "type": "actions",
+        "elements": [{
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "emoji": true,
+              "text": "Look for event"
+            },
+            "style": "primary",
+            "action_id": "event_join_search"
+          },
+          {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "emoji": true,
+              "text": "Create event"
+            },
+            "action_id": "event_create_place"
+          }
+        ]
+      }
+    ]
+  })
+})
 
-// app.message('__delete me', async ({
-//   message
-// }) => {
-//   await usermodel.findOneAndDelete({
-//     idUser: message.user,
-//     idChannel: message.channel
-//   })
-// })
+app.message('__delete all', async ({
+  context,
+  message
+}) => {
+  var history = await app.client.im.history({
+    token: context.botToken,
+    channel: message.channel
+  })
+
+  for (var i = 0; i <= history.messages.length; i++) {
+    await app.client.chat.delete({
+      // fill here the `OAuth Access Token` that you in your slack app `OAuth & Permissions` section
+      token: process.env.SLACK_OAUTH_ACCESS_TOKEN,
+      channel: message.channel,
+      ts: history.messages[i].ts,
+      as_user: true
+    });
+  }
+})
+
+app.message('__create me', async ({
+  message
+}) => {
+  var userAdd = new usermodel({
+    idUser: message.user,
+    idChannel: message.channel,
+    lastActivity: new Date(),
+    location: {
+      geo: "52.5731,13.4171",
+      city: "Berlin",
+      district: "Pankow",
+      postCode: "13187"
+    },
+    status: 3
+  })
+  await userAdd.save()
+})
+
+app.message('__delete me', async ({
+  message
+}) => {
+  await usermodel.findOneAndDelete({
+    idUser: message.user,
+    idChannel: message.channel
+  })
+})
 
 // Setup functions
 
